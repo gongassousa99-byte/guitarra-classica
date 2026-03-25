@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitarra Clássica</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0d0b;
+    --surface: #161510;
+    --surface2: #1e1c17;
+    --surface3: #252218;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6028;
+    --cream: #f0e8d6;
+    --cream-dim: #9b8f7a;
+    --text: #e8dcc8;
+    --text-dim: #7a6e5a;
+    --border: rgba(201,168,76,0.15);
+    --border-strong: rgba(201,168,76,0.35);
+    --red: #c45c3a;
+    --green: #4a8c5c;
+    --blue: #4a6e8c;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .app-header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .app-logo {
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+  }
+
+  .app-logo span {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  .week-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--gold);
+    border: 1px solid var(--border-strong);
+    padding: 0.3rem 0.8rem;
+    letter-spacing: 0.1em;
+    border-radius: 2px;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 65px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 2rem 0;
+    position: sticky;
+    top: 65px;
+    height: calc(100vh - 65px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    margin-bottom: 2rem;
+  }
+
+  .sidebar-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 0 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    color: var(--cream-dim);
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface); color: var(--cream); }
+  .nav-item.active { color: var(--gold); border-left-color: var(--gold); background: var(--surface); }
+
+  .nav-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+  }
+
+  /* PROGRESS BAR IN SIDEBAR */
+  .progress-block {
+    padding: 0 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .progress-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+    color: var(--cream-dim);
+  }
+
+  .progress-bar-bg {
+    height: 3px;
+    background: var(--surface3);
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--gold);
+    transition: width 0.5s ease;
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    padding: 2.5rem 3rem;
+    max-width: 900px;
+  }
+
+  /* PAGE TITLE */
+  .page-title {
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--cream);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .page-sub {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 2.5rem;
+  }
+
+  /* WEEK CARD */
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .week-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--gold);
+  }
+
+  .week-card.locked::before { background: var(--text-dim); }
+  .week-card.locked { opacity: 0.5; pointer-events: none; }
+
+  .week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.2rem;
+  }
+
+  .week-num {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    margin-bottom: 0.3rem;
+  }
+
+  .week-title {
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--cream);
+  }
+
+  .week-status {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  .status-current { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid var(--border-strong); }
+  .status-done { background: rgba(74,140,92,0.12); color: #6abf82; border: 1px solid rgba(74,140,92,0.3); }
+  .status-locked { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+
+  .week-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .topic-tag {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.7rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--cream-dim);
+    border-radius: 2px;
+  }
+
+  .week-desc {
+    font-size: 0.95rem;
+    color: var(--cream-dim);
+    line-height: 1.7;
+    margin-bottom: 1.2rem;
+  }
+
+  .week-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .week-btn:hover { background: rgba(201,168,76,0.1); }
+
+  /* LESSON DETAIL VIEW */
+  .lesson-view { display: none; }
+
+  .back-btn {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .back-btn:hover { color: var(--gold); }
+
+  /* EXERCISE CARD */
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .exercise-header {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .exercise-header:hover { background: var(--surface2); }
+
+  .exercise-num {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .exercise-num.done {
+    background: rgba(74,140,92,0.15);
+    border-color: rgba(74,140,92,0.4);
+    color: #6abf82;
+  }
+
+  .exercise-title { flex: 1; font-size: 1rem; color: var(--cream); }
+
+  .exercise-duration {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+
+  .exercise-chevron { color: var(--text-dim); transition: transform 0.2s; font-size: 0.8rem; }
+  .exercise-card.open .exercise-chevron { transform: rotate(180deg); }
+
+  .exercise-body {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .exercise-card.open .exercise-body { display: block; }
+
+  .ex-section-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .ex-text { font-size: 0.9rem; color: var(--cream-dim); line-height: 1.75; }
+
+  /* TABLATURE */
+  .tab-container {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.5rem;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    line-height: 1.8;
+    color: var(--cream);
+    white-space: pre;
+  }
+
+  .tab-string { color: var(--gold-dim); }
+  .tab-fret { color: var(--cream); }
+
+  /* TIMER */
+  .timer-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .timer-display {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    min-width: 60px;
+  }
+
+  .timer-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--cream-dim);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .timer-btn:hover { color: var(--gold); border-color: var(--gold); }
+  .timer-btn.active { color: var(--red); border-color: var(--red); }
+
+  .done-btn {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(74,140,92,0.4);
+    background: rgba(74,140,92,0.1);
+    color: #6abf82;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .done-btn:hover { background: rgba(74,140,92,0.2); }
+  .done-btn.marked { opacity: 0.5; }
+
+  /* METRONOME */
+  .metronome-block {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--surface2);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .metro-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .metro-bpm {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--gold);
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .metro-slider { flex: 1; }
+
+  .metro-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.45rem 1.2rem;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    letter-spacing: 0.08em;
+  }
+
+  .metro-btn:hover { background: rgba(201,168,76,0.1); }
+  .metro-btn.playing { border-color: var(--red); color: var(--red); }
+
+  .metro-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface3);
+    transition: background 0.05s;
+    flex-shrink: 0;
+  }
+
+  .metro-dot.beat { background: var(--gold); }
+
+  /* NOTES */
+  .notes-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.5rem;
+    min-height: 80px;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--cream-dim);
+    width: 100%;
+    resize: vertical;
+    outline: none;
+    line-height: 1.75;
+    margin-top: 0.5rem;
+  }
+
+  .notes-area:focus { border-color: var(--border-strong); color: var(--cream); }
+
+  /* INFO PANEL */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .info-num {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1.1;
+  }
+
+  .info-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-top: 0.3rem;
+  }
+
+  /* TUNER */
+  .tuner-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tuner-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+  }
+
+  .tuner-strings {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+  }
+
+  .tuner-string {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface2);
+  }
+
+  .tuner-string:hover { border-color: var(--border-strong); }
+  .tuner-string.tuning { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+  .tuner-note {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--cream);
+    font-weight: 400;
+  }
+
+  .tuner-freq {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+  }
+
+  .tuner-str-label {
+    font-size: 0.65rem;
+    color: var(--gold-dim);
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+  }
+
+  /* DIAGRAMS */
+  .chord-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0;
+  }
+
+  .chord-diagram {
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .chord-name {
+    font-size: 0.85rem;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+  }
+
+  .chord-svg { display: block; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+
+  /* TABS NAV (within lesson view) */
+  .tab-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .tab-nav-item {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab-nav-item:hover { color: var(--cream); }
+  .tab-nav-item.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 1.5rem; }
+    .info-grid { grid-template-columns: repeat(3,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">Arte da <span>Guitarra Clássica</span></div>
+  <div class="week-badge" id="current-week-badge">SEMANA 1</div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">navegação</div>
+      <div class="nav-item active" onclick="showPage('plano')" data-page="plano">
+        <span class="nav-icon">◈</span> Plano de Estudo
+      </div>
+      <div class="nav-item" onclick="showPage('afinador')" data-page="afinador">
+        <span class="nav-icon">◎</span> Afinador
+      </div>
+      <div class="nav-item" onclick="showPage('metrônomo')" data-page="metrônomo">
+        <span class="nav-icon">◷</span> Metrônomo
+      </div>
+      <div class="nav-item" onclick="showPage('repertorio')" data-page="repertorio">
+        <span class="nav-icon">◑</span> Repertório
+      </div>
+      <div class="nav-item" onclick="showPage('notas')" data-page="notas">
+        <span class="nav-icon">◻</span> Os Meus Apontamentos
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">progresso total</div>
+      <div class="progress-block">
+        <div class="progress-row"><span>Semanas concluídas</span><span id="weeks-done-count">0 / 12</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="total-progress" style="width:0%"></div></div>
+
+        <div class="progress-row"><span>Exercícios hoje</span><span id="ex-today">0 / 0</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="today-progress" style="width:0%; background: #4a8c5c"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- PLANO DE ESTUDO -->
+    <div id="page-plano">
+      <div class="page-title">Plano Semanal</div>
+      <div class="page-sub">12 SEMANAS · GUITARRA CLÁSSICA · MÉTODO PROGRESSIVO</div>
+      <div id="weeks-list"></div>
+    </div>
+
+    <!-- LESSON VIEW -->
+    <div id="page-lesson" style="display:none">
+      <button class="back-btn" onclick="closLesson()">← voltar ao plano</button>
+      <div id="lesson-content"></div>
+    </div>
+
+    <!-- AFINADOR -->
+    <div id="page-afinador" style="display:none">
+      <div class="page-title">Afinador</div>
+      <div class="page-sub">STANDARD TUNING · E A D G B E</div>
+      <div class="tuner-block">
+        <div class="tuner-title">CLICA NUMA CORDA PARA OUVIR O TOM</div>
+        <div class="tuner-strings" id="tuner-strings"></div>
+      </div>
+      <div class="week-card">
+        <div class="ex-section-label">Dica de afinação</div>
+        <p class="ex-text">Afina sempre antes de começar a praticar. Usa a 5ª casa para afinar cordas relativas entre si: a 5ª casa da 6ª corda (Mi) deve soar igual à 5ª corda solta (La). Repete para todas as cordas, exceto entre a 3ª e 2ª corda onde é a 4ª casa.</p>
+      </div>
+    </div>
+
+    <!-- METRÔNOMO -->
+    <div id="page-metrônomo" style="display:none">
+      <div class="page-title">Metrônomo</div>
+      <div class="page-sub">FERRAMENTA DE RITMO</div>
+      <div class="week-card">
+        <div style="text-align:center; margin-bottom: 1.5rem;">
+          <div style="font-family:var(--font-mono); font-size:3rem; color:var(--gold);" id="main-bpm-display">80</div>
+          <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-dim); letter-spacing:0.1em;">BPM</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+          <input type="range" min="40" max="200" value="80" id="main-metro-slider" style="flex:1;" oninput="updateMainBpm(this.value)">
+        </div>
+        <div style="display:flex; justify-content:center; gap:0.5rem; margin-bottom:1.5rem;" id="main-metro-dots"></div>
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          <button class="timer-btn" onclick="adjustBpm(-10)">−10</button>
+          <button class="timer-btn" onclick="adjustBpm(-5)">−5</button>
+          <button class="metro-btn" id="main-metro-btn" onclick="toggleMainMetro()">▶ INICIAR</button>
+          <button class="timer-btn" onclick="adjustBpm(5)">+5</button>
+          <button class="timer-btn" onclick="adjustBpm(10)">+10</button>
+        </div>
+        <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border);">
+          <div class="ex-section-label">Tempos de referência</div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+            <button class="topic-tag" style="cursor:pointer;" onclick="setMainBpm(60)">Largo · 60</button>
+            <button class="topic-tag" style="cursor:pointer;" onclick="setMainBpm(76)">Andante · 76</button>
+            <button class="topic-tag" style="cursor:pointer;" onclick="setMainBpm(92)">Moderato · 92</button>
+            <button class="topic-tag" style="cursor:pointer;" onclick="setMainBpm(120)">Allegro · 120</button>
+            <button class="topic-tag" style="cursor:pointer;" onclick="setMainBpm(152)">Presto · 152</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPERTÓRIO -->
+    <div id="page-repertorio" style="display:none">
+      <div class="page-title">Repertório Clássico</div>
+      <div class="page-sub">PEÇAS ORGANIZADAS POR DIFICULDADE</div>
+      <div id="repertoire-list"></div>
+    </div>
+
+    <!-- APONTAMENTOS -->
+    <div id="page-notas" style="display:none">
+      <div class="page-title">Os Meus Apontamentos</div>
+      <div class="page-sub">NOTAS PESSOAIS DE ESTUDO</div>
+      <div id="notes-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const WEEKS_DATA = [
+  {
+    id: 1,
+    title: "Postura e Primeiros Sons",
+    topics: ["Postura", "Mão direita", "Pulsação livre", "Cordas soltas"],
+    desc: "A base de tudo. Aprende a sentar corretamente, a posicionar a guitarra e a produzir os primeiros sons com a mão direita em pulsação livre (sem apoio).",
+    exercises: [
+      {
+        title: "Postura correta",
+        duration: "10 min",
+        instructions: "Senta numa cadeira sem braços. Coloca a guitarra no pé esquerdo com o corpo encostado ao teu. O braço do instrumento deve ficar entre os joelhos ligeiramente levantados. A guitarra inclina ~45° para cima. Os ombros relaxados, as costas direitas.",
+        practice: "Fica 5 minutos simplesmente a segurar a guitarra sem tocar. Observa onde há tensão no corpo e relaxa essas zonas. Repete.",
+        tab: null,
+        bpm: 0
+      },
+      {
+        title: "Mão direita — posição i m a",
+        duration: "10 min",
+        instructions: "A mão direita fica sobre a boca da guitarra. Os dedos i (indicador), m (médio) e a (anelar) ficam ligeiramente curvos sobre as cordas. O polegar (p) fica à frente dos outros dedos. O pulso levemente arqueado para fora.",
+        practice: "Apoio os dedos suavemente em cada corda sem tocar. Sente o contacto. Dedos relaxados, sem tensão.",
+        tab: null,
+        bpm: 0
+      },
+      {
+        title: "Pulsação livre nas cordas soltas",
+        duration: "15 min",
+        instructions: "Pulsação livre: o dedo passa pela corda e não pousa na corda seguinte. Movimento parte da articulação principal do dedo. Pratica na 1ª (Mi), 2ª (Si) e 3ª (Sol) corda.",
+        practice: "Alterna i e m numa corda de cada vez. Conta em voz alta: 1-2-3-4. Mantém o som uniforme.",
+        tab: `e|—0—0—0—0—0—0—0—0—|
+B|—0—0—0—0—0—0—0—0—|
+G|—0—0—0—0—0—0—0—0—|`,
+        bpm: 60
+      },
+      {
+        title: "Polegar nas cordas graves",
+        duration: "10 min",
+        instructions: "O polegar (p) toca nas cordas 4ª (Ré), 5ª (Lá) e 6ª (Mi). Movimento diferente: o polegar passa a corda para baixo com suavidade. Nunca pinça — desliza para fora.",
+        practice: "Pratica p na 4ª, 5ª e 6ª corda alternando. Som redondo e cheio.",
+        tab: `D|—0—0—0—0—|
+A|—0—0—0—0—|
+E|—0—0—0—0—|`,
+        bpm: 60
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "Mão Esquerda e Primeiros Acordes",
+    topics: ["Mão esquerda", "Dó maior", "La menor", "Articulação"],
+    desc: "Introdução à mão esquerda: posição do polegar, curvatura dos dedos e os dois primeiros acordes essenciais da guitarra clássica.",
+    exercises: [
+      {
+        title: "Posição da mão esquerda",
+        duration: "5 min",
+        instructions: "O polegar fica atrás do braço da guitarra, centrado, a fazer par com o dedo médio. Os outros dedos ficam curvos, tocando apenas com as pontas. O pulso afastado do braço da guitarra para dar espaço aos dedos.",
+        practice: "Coloca cada dedo numa casa de cada vez (1ª, 2ª, 3ª, 4ª) na 1ª corda. Verifica que cada nota soa limpa sem zumbidos.",
+        tab: `e|—1—2—3—4—|`,
+        bpm: 50
+      },
+      {
+        title: "Acorde de Dó Maior",
+        duration: "15 min",
+        instructions: "Dó Maior: dedo 1 na 2ª corda, 1ª casa (Si→Dó). Dedo 2 na 4ª corda, 2ª casa (Ré→Mi). Dedo 3 na 5ª corda, 3ª casa (Lá→Dó). A 3ª corda (Sol) e a 1ª (Mi) tocam soltas.",
+        practice: "Coloca o acorde devagar. Verifica cada corda. Toca arpegio com i-m-a. Repete.",
+        tab: `e|—0—|
+B|—1—|
+G|—0—|
+D|—2—|
+A|—3—|
+E|—x—|`,
+        bpm: 50
+      },
+      {
+        title: "Acorde de Lá Menor",
+        duration: "15 min",
+        instructions: "Lá Menor: dedo 1 na 2ª corda, 1ª casa. Dedo 2 na 4ª corda, 2ª casa. Dedo 3 na 3ª corda, 2ª casa. As 1ª e 5ª cordas ficam soltas.",
+        practice: "Alterna Am → C. Conta 4 tempos em cada acorde. Vai aumentando a velocidade gradualmente.",
+        tab: `e|—0—|
+B|—1—|
+G|—2—|
+D|—2—|
+A|—0—|
+E|—x—|`,
+        bpm: 55
+      },
+      {
+        title: "Arpejo p-i-m-a",
+        duration: "10 min",
+        instructions: "Arpejo básico: polegar toca a 4ª corda, depois i na 3ª, m na 2ª, a na 1ª. Um dedo de cada vez, sem pressa. Mantém o acorde de Dó Maior premido.",
+        practice: "Repete o padrão p-i-m-a sobre Am e C alternados.",
+        tab: `e|——————————0—|
+B|————0————1—|
+G|——0————0—|
+D|—2————2——|
+A|—0————3——|`,
+        bpm: 60
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: "Escalas e Leitura de Notas",
+    topics: ["Escala de Dó", "Posição I", "Leitura musical", "Ritmo"],
+    desc: "Aprende a escala de Dó Maior em posição aberta e começa a ler as notas no pentagrama. A escala é a base de toda a técnica.",
+    exercises: [
+      {
+        title: "Escala de Dó Maior — posição aberta",
+        duration: "20 min",
+        instructions: "A escala de Dó Maior sobe pelas cordas da mais grave para a mais aguda. Cada nota deve ter a mesma duração e o mesmo volume. Usa alternância i-m na mão direita.",
+        practice: "Sobe e desce a escala. Começa lento (♩=50) e vai aumentando. A velocidade só aumenta quando cada nota soar limpa.",
+        tab: `e|——————————————————————0—1—3—|
+B|————————————0—1—3—————————|
+G|——————0—2————————————————|
+D|——0—2————————————————————|
+A|—3—————————————————————————|
+E|——————————————————————————|`,
+        bpm: 50
+      },
+      {
+        title: "As notas da 1ª corda",
+        duration: "10 min",
+        instructions: "1ª corda (Mi agudo): corda solta = Mi (E). 1ª casa = Fá (F). 3ª casa = Sol (G). Aprende a localizar estas notas visualmente no pentagrama e na guitarra.",
+        practice: "Toca cada nota dizendo o nome em voz alta. Faz isto durante 5 minutos sem parar.",
+        tab: `e|—0—1—3—1—0—|`,
+        bpm: 50
+      },
+      {
+        title: "Exercício de independência de dedos",
+        duration: "15 min",
+        instructions: "Exercício cromático: dedos 1-2-3-4 em cada corda. Mantém os dedos que já estão premidos enquanto adicionas o próximo. Desenvolve independência e força.",
+        practice: "Começa na 6ª corda. Sobe até à 1ª corda. Depois desce.",
+        tab: `e|——————————1—2—3—4—|
+B|————————1—2—3—4———|
+G|——————1—2—3—4—————|
+D|————1—2—3—4———————|
+A|——1—2—3—4—————————|
+E|—1—2—3—4———————————|`,
+        bpm: 55
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: "Padrões de Arpejo",
+    topics: ["Arpejo p-i-m-a", "p-a-m-i", "Romance", "Fluidez"],
+    desc: "Os arpejos são a voz da guitarra clássica. Esta semana exploras diferentes padrões e começas o famoso 'Romance Anónimo'.",
+    exercises: [
+      {
+        title: "Padrão p-i-m-a-m-i",
+        duration: "15 min",
+        instructions: "Este padrão de 6 notas é muito usado na música clássica. A mão direita: polegar (baixo), i, m, a, m, i. Cada dedo independente, sem mover o pulso.",
+        practice: "Pratica sobre Am e C durante 5 minutos cada um. Sons iguais em volume para todos os dedos.",
+        tab: `e|——————a—————|
+B|————m———m——|
+G|——i———————i—|
+D|—p——————————|`,
+        bpm: 60
+      },
+      {
+        title: "Romance Anónimo — introdução",
+        duration: "20 min",
+        instructions: "O Romance Anónimo (Romance de Espanha) usa arpejo p-i-m-i na maioria. A melodia está na 1ª corda com o dedo a (anelar). Começa apenas com a primeira frase de 4 compassos.",
+        practice: "Aprende a mão direita sem a esquerda primeiro. Depois junta devagar.",
+        tab: `e|—0———3———0———2—|
+B|——1———1———1———1—|
+G|——0———0———0———0—|
+D|——2———2———2———2—|
+A|—0———0———0———0—|`,
+        bpm: 55
+      },
+      {
+        title: "Ligados ascendentes",
+        duration: "10 min",
+        instructions: "Ligado ascendente (hammer-on): toca uma nota com a mão direita, depois bate forte com outro dedo da mão esquerda sem usar a direita. Cria ligações suaves entre notas.",
+        practice: "Pratica na 1ª corda: 0-1-0-2-0-3. O segundo som deve ter o mesmo volume.",
+        tab: `e|—0h1—0h2—0h3—|`,
+        bpm: 50
+      }
+    ]
+  },
+  {
+    id: 5,
+    title: "Posição I e Peças Curtas",
+    topics: ["Posição I", "Estudo de Carcassi", "Dinâmicas", "Expressão"],
+    desc: "Consolidas a posição I (casas 1-4) e trabalhas as tuas primeiras peças completas. A expressão musical começa aqui.",
+    exercises: [
+      {
+        title: "Estudo em Lá Menor (Carcassi)",
+        duration: "25 min",
+        instructions: "Este estudo de Matteo Carcassi (1792-1853) trabalha a fluidez do arpejo. A melodia está sempre no dedo a. Atenção à dinâmica: varia o volume entre piano (suave) e forte.",
+        practice: "Aprende 4 compassos por dia. Não adiantes sem dominar o anterior.",
+        tab: `e|—0———————0———|
+B|——1—1—1———1—1—|
+G|——2———2———2——|
+D|——2———————2——|
+A|—0———————0———|`,
+        bpm: 60
+      },
+      {
+        title: "Meia posição — Mi e Fá",
+        duration: "10 min",
+        instructions: "A meia posição usa o dedo 1 na 1ª casa. Pratica a transição entre posição aberta e meia posição sem pausas ou tensão.",
+        practice: "Toca a escala de Fá Maior que requer a meia posição.",
+        tab: `e|——————————————1—3—|
+B|————————1—3—————|
+G|——————2—————————|
+D|——0—3———————————|
+A|—3———————————————|
+E|—1———————————————|`,
+        bpm: 55
+      }
+    ]
+  },
+  {
+    id: 6,
+    title: "Barre e Acorde de Fá",
+    topics: ["Barre", "Fá Maior", "Força", "Resistência"],
+    desc: "O acorde de barre é o maior desafio técnico da guitarra. Esta semana dedicas-te a construir a força necessária com paciência.",
+    exercises: [
+      {
+        title: "Pré-barre — dedo 1 em duas cordas",
+        duration: "15 min",
+        instructions: "Antes do barre completo, pratica colocar o dedo 1 achatado nas cordas 1 e 2 na 1ª casa. Rola o dedo ligeiramente para o lado para usar a parte mais dura do dedo.",
+        practice: "Toca as duas cordas com o barre parcial. Verifica que ambas soam limpas. 3 séries de 1 minuto.",
+        tab: `e|—1—1—1—1—|
+B|—1—1—1—1—|`,
+        bpm: 0
+      },
+      {
+        title: "Acorde de Fá Maior completo",
+        duration: "20 min",
+        instructions: "Fá Maior: barre completo na 1ª casa com dedo 1. Dedo 2 na 3ª corda, 2ª casa. Dedo 3 na 5ª corda, 3ª casa. Dedo 4 na 4ª corda, 3ª casa. Verifica todas as cordas uma a uma.",
+        practice: "C → Am → F → G. Não precisa de ser rápido. Cada acorde deve soar limpo antes de avançar.",
+        tab: `e|—1—|
+B|—1—|
+G|—2—|
+D|—3—|
+A|—3—|
+E|—1—|`,
+        bpm: 50
+      }
+    ]
+  },
+  {
+    id: 7, title: "Melodia e Acompanhamento",
+    topics: ["Melodia no polegar", "Voz interna", "Baixo independente"],
+    desc: "Começas a trabalhar a independência entre melodia e acompanhamento — a capacidade de ouvir duas vozes distintas em simultâneo.",
+    exercises: [
+      { title: "Baixo-acorde (waltz pattern)", duration: "15 min",
+        instructions: "Padrão de valsa: polegar no baixo (tempo 1), depois i-m nas vozes internas (tempos 2 e 3). Em 3/4.",
+        practice: "Pratica sobre Am: p na 5ª corda, depois i+m nas cordas 2+1. Alterna com C.",
+        tab: `e|—0————0—|
+B|——1—————1—|
+G|——0—————0—|
+A|—0—————3—|`, bpm: 70 },
+      { title: "Prelúdio em Dó Maior (Bach/Aguado)", duration: "25 min",
+        instructions: "Adaptação simplificada do prelúdio em Dó de Bach. O padrão p-i-m-a-m-i repete sobre cada acorde. A mão esquerda muda suavemente.",
+        practice: "4 compassos por sessão. Nunca praticar com erros — para sempre que soar mal.",
+        tab: `e|——————0———————0—|
+B|————1———————1———|
+G|——0———————0———|
+D|—2———————2———|
+A|—3———————3———|`, bpm: 65 }
+    ]
+  },
+  {
+    id: 8, title: "Posição II e III",
+    topics: ["Mudança de posição", "Ligados", "Vibrato básico"],
+    desc: "Expandires o braço da guitarra. As posições II e III abrem novas possibilidades melódicas e harmónicas.",
+    exercises: [
+      { title: "Escala em posição II", duration: "15 min",
+        instructions: "Na posição II, o dedo 1 começa na 2ª casa. A escala de Ré Maior pode ser toda tocada em posição II.",
+        practice: "Sobe e desce a escala de Ré Maior. Conta os dedos: 1=2ª casa, 2=3ª, 3=4ª, 4=5ª.",
+        tab: `e|———————————————2—4—5—|
+B|—————————3—5———————|
+G|———————2—4—————————|
+D|——0—2—4———————————|
+A|—5————————————————|`, bpm: 55 },
+      { title: "Vibrato de pulso", duration: "10 min",
+        instructions: "O vibrato clássico é feito com o pulso a rodar ligeiramente enquanto o dedo mantém a pressão. É subtil. Pratica numa nota longa na 3ª corda, 5ª casa.",
+        practice: "Toca a nota, deixa soar, e introduz o vibrato suavemente. Não forçar.",
+        tab: `G|—5~~~~~~~|`, bpm: 0 }
+    ]
+  },
+  {
+    id: 9, title: "Ligados Descendentes e Ornamentos",
+    topics: ["Pull-off", "Trilo", "Mordente", "Expressão"],
+    desc: "Os ornamentos dão vida à música barroca e clássica. O pull-off (ligado descendente) é a técnica base para trinados e trilos.",
+    exercises: [
+      { title: "Pull-off básico", duration: "15 min",
+        instructions: "Ligado descendente: tens dois dedos na corda, 'puxas' o de cima para fora enquanto o de baixo mantém a nota. O som deve ser igualmente forte.",
+        practice: "Na 1ª corda: 3p0, 2p0, 1p0. Depois combina com hammer-on: 0h2p0.",
+        tab: `e|—3p0—2p0—1p0—0h2p0—|`, bpm: 55 },
+      { title: "Estudo de ornamentos (Giuliani)", duration: "20 min",
+        instructions: "Excerto de um estudo de Mauro Giuliani (1781-1829) que usa ligados ascendentes e descendentes em combinação. Um dos mais úteis para desenvolver velocidade e fluidez.",
+        practice: "Pratica a velocidade mínima possível. A velocidade é consequência da precisão.",
+        tab: `e|—0h1p0—0h2p0—0h3p0—|`, bpm: 50 }
+    ]
+  },
+  {
+    id: 10, title: "Rasgueado e Técnicas Especiais",
+    topics: ["Rasgueado", "Tremolo", "Sul ponticello", "Timbre"],
+    desc: "A guitarra tem uma paleta de timbres enorme. Explores diferentes técnicas de mão direita que transformam o som.",
+    exercises: [
+      { title: "Variações de timbre", duration: "10 min",
+        instructions: "Sul ponticello: toca perto do cavalete para um som brilhante e metálico. Sul tasto: toca sobre o braço para um som suave e aveludado. Pratica a mesma escala com cada timbre.",
+        practice: "Escala de Dó, 3 vezes em cada posição de mão direita. Escuta ativamente a diferença.",
+        tab: null, bpm: 0 },
+      { title: "Tremolo básico (p-a-m-i)", duration: "20 min",
+        instructions: "O tremolo é a técnica mais admirada da guitarra. Uma nota repetida com a-m-i enquanto o polegar faz o baixo. Começa MUITO lento e com total igualdade de notas.",
+        practice: "1ª corda solta: p(5ª)-a-m-i, repetindo. O polegar e os dedos devem ser completamente independentes.",
+        tab: `e|——a-m-i——a-m-i——|
+A|p————p————|`, bpm: 52 }
+    ]
+  },
+  {
+    id: 11, title: "Repertório — Peça Completa",
+    topics: ["Estudo de Sor", "Memorização", "Interpretação"],
+    desc: "Esta semana é dedicada a uma peça completa de Fernando Sor. A memorização e a interpretação musical são o foco.",
+    exercises: [
+      { title: "Estudo Op.60 No.1 (Sor) — análise", duration: "15 min",
+        instructions: "Antes de tocar, analisa a peça: identifica a forma (A-B-A), os acordes principais, as frases. Canta a melodia antes de tocar.",
+        practice: "Toca apenas a melodia da mão direita (dedo a) sem o acompanhamento. Depois adiciona o arpejo.",
+        tab: `e|—1—0——————|
+B|——1—3—1—0—|
+G|——————————|
+D|——————————|
+A|—0————0———|`, bpm: 60 },
+      { title: "Memorização por secções", duration: "20 min",
+        instructions: "Memoriza 2 compassos de cada vez, tocando de olhos fechados. A memória muscular e a memória auditiva são igualmente importantes.",
+        practice: "Toca cada secção 10 vezes de olhos fechados antes de avançar.",
+        tab: null, bpm: 0 }
+    ]
+  },
+  {
+    id: 12, title: "Revisão e Próximos Passos",
+    topics: ["Revisão técnica", "Autoavaliação", "Planeamento futuro"],
+    desc: "Chegaste ao fim das 12 semanas. Esta última semana é de revisão, autoavaliação e planeamento para o próximo nível.",
+    exercises: [
+      { title: "Autoavaliação técnica", duration: "20 min",
+        instructions: "Grava-te a tocar as peças aprendidas. Escuta criticamente: postura, som, ritmo, expressão. Escreve 3 pontos fortes e 3 aspetos a melhorar.",
+        practice: "Usa o telemóvel para gravar. A gravação revela coisas que os teus ouvidos não percebem enquanto tocas.",
+        tab: null, bpm: 0 },
+      { title: "Mini-concerto pessoal", duration: "15 min",
+        instructions: "Toca todas as peças que aprendeste em sequência, como num mini-concerto. Do início ao fim, sem parar para corrigir. Experiencia o prazer de tocar música completa.",
+        practice: "Convida alguém para ouvir, mesmo que seja o teu animal de estimação. Tocar para uma audiência é transformador.",
+        tab: null, bpm: 0 }
+    ]
+  }
+];
+
+const REPERTOIRE = [
+  { level: "Iniciante", pieces: [
+    { title: "Romance Anónimo", composer: "Anónimo Espanhol", period: "Séc. XIX", key: "Mi menor" },
+    { title: "Lágrima", composer: "Francisco Tárrega", period: "1885", key: "Mi maior" },
+    { title: "Estudo Op.60 No.1", composer: "Fernando Sor", period: "Séc. XIX", key: "Lá menor" },
+    { title: "Estudo No.1", composer: "Mauro Giuliani", period: "Séc. XIX", key: "Dó maior" }
+  ]},
+  { level: "Intermédio", pieces: [
+    { title: "Estudo em Lá Menor", composer: "Matteo Carcassi", period: "Séc. XIX", key: "Lá menor" },
+    { title: "Adelita (Mazurca)", composer: "Francisco Tárrega", period: "1902", key: "Mi menor" },
+    { title: "Bourée em Mi menor", composer: "J.S. Bach", period: "1720", key: "Mi menor" },
+    { title: "Vals Op.8 No.4", composer: "Fernando Sor", period: "Séc. XIX", key: "Mi menor" }
+  ]},
+  { level: "Avançado", pieces: [
+    { title: "Recuerdos de la Alhambra", composer: "Francisco Tárrega", period: "1896", key: "Lá menor" },
+    { title: "Asturias", composer: "Isaac Albéniz", period: "1892", key: "Mi menor" },
+    { title: "Suíte BWV 1006a", composer: "J.S. Bach", period: "1720", key: "Mi maior" },
+    { title: "Fantasia Op.7", composer: "Fernando Sor", period: "Séc. XIX", key: "Mi menor" }
+  ]}
+];
+
+const TUNING = [
+  { note: "E", freq: "82 Hz", str: "6ª", name: "Mi grave" },
+  { note: "A", freq: "110 Hz", str: "5ª", name: "Lá" },
+  { note: "D", freq: "147 Hz", str: "4ª", name: "Ré" },
+  { note: "G", freq: "196 Hz", str: "3ª", name: "Sol" },
+  { note: "B", freq: "247 Hz", str: "2ª", name: "Si" },
+  { note: "E", freq: "330 Hz", str: "1ª", name: "Mi agudo" }
+];
+
+// STATE
+let state = {
+  weeksDone: JSON.parse(localStorage.getItem('gc_weeks_done') || '[]'),
+  exercisesDone: JSON.parse(localStorage.getItem('gc_ex_done') || '{}'),
+  notes: JSON.parse(localStorage.getItem('gc_notes') || '{}'),
+  timers: {},
+  metroInterval: null,
+  metroBeat: 0,
+  mainMetroBpm: 80,
+  mainMetroInterval: null,
+  mainMetroBeat: 0
+};
+
+function saveState() {
+  localStorage.setItem('gc_weeks_done', JSON.stringify(state.weeksDone));
+  localStorage.setItem('gc_ex_done', JSON.stringify(state.exercisesDone));
+  localStorage.setItem('gc_notes', JSON.stringify(state.notes));
+}
+
+// PAGES
+function showPage(name) {
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('page-' + name);
+  if (el) el.style.display = 'block';
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
+
+  if (name === 'afinador') renderTuner();
+  if (name === 'metrônomo') renderMainMetro();
+  if (name === 'repertorio') renderRepertoire();
+  if (name === 'notas') renderAllNotes();
+}
+
+// WEEK LIST
+function renderWeeks() {
+  const container = document.getElementById('weeks-list');
+  container.innerHTML = '';
+
+  WEEKS_DATA.forEach((week, idx) => {
+    const isDone = state.weeksDone.includes(week.id);
+    const isCurrent = !isDone && (idx === 0 || state.weeksDone.includes(WEEKS_DATA[idx-1]?.id));
+    const isLocked = !isDone && !isCurrent;
+
+    const statusLabel = isDone ? 'CONCLUÍDA' : isCurrent ? 'EM CURSO' : 'BLOQUEADA';
+    const statusClass = isDone ? 'status-done' : isCurrent ? 'status-current' : 'status-locked';
+
+    const card = document.createElement('div');
+    card.className = `week-card${isLocked ? ' locked' : ''}`;
+    card.innerHTML = `
+      <div class="week-header">
+        <div>
+          <div class="week-num">SEMANA ${week.id}</div>
+          <div class="week-title">${week.title}</div>
+        </div>
+        <span class="week-status ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="week-topics">${week.topics.map(t => `<span class="topic-tag">${t}</span>`).join('')}</div>
+      <p class="week-desc">${week.desc}</p>
+      <button class="week-btn" onclick="openLesson(${week.id})">
+        ${isDone ? '↺ REVER SEMANA' : '→ INICIAR SEMANA'}
+      </button>
+    `;
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = state.weeksDone.length;
+  document.getElementById('weeks-done-count').textContent = `${done} / 12`;
+  document.getElementById('total-progress').style.width = `${(done/12)*100}%`;
+  document.getElementById('current-week-badge').textContent = `SEMANA ${Math.min(done+1, 12)}`;
+}
+
+// LESSON
+function openLesson(weekId) {
+  const week = WEEKS_DATA.find(w => w.id === weekId);
+  document.getElementById('page-plano').style.display = 'none';
+  document.getElementById('page-lesson').style.display = 'block';
+
+  const exDone = state.exercisesDone[weekId] || [];
+  const totalEx = week.exercises.length;
+  const doneEx = exDone.length;
+
+  document.getElementById('lesson-content').innerHTML = `
+    <div class="page-title">${week.title}</div>
+    <div class="page-sub">SEMANA ${week.id} · ${totalEx} EXERCÍCIOS</div>
+
+    <div class="info-grid">
+      <div class="info-card"><div class="info-num">${totalEx}</div><div class="info-label">EXERCÍCIOS</div></div>
+      <div class="info-card"><div class="info-num" id="done-ex-count">${doneEx}</div><div class="info-label">CONCLUÍDOS</div></div>
+      <div class="info-card"><div class="info-num">${week.exercises.reduce((s,e) => s + parseInt(e.duration), 0)}'</div><div class="info-label">DURAÇÃO</div></div>
+    </div>
+
+    <div id="exercises-container">
+      ${week.exercises.map((ex, i) => renderExercise(ex, i, weekId)).join('')}
+    </div>
+
+    <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+      <div class="ex-section-label">APONTAMENTOS DESTA SEMANA</div>
+      <textarea class="notes-area" id="week-notes-${weekId}" placeholder="Escreve aqui as tuas notas, dificuldades e descobertas desta semana..." onchange="saveWeekNote(${weekId}, this.value)">${state.notes[weekId] || ''}</textarea>
+    </div>
+
+    <div style="margin-top:1.5rem; text-align:right;">
+      <button class="week-btn" onclick="markWeekDone(${weekId})" id="complete-week-btn" ${state.weeksDone.includes(weekId) ? 'style="opacity:0.5"' : ''}>
+        ${state.weeksDone.includes(weekId) ? '✓ SEMANA CONCLUÍDA' : '◈ MARCAR SEMANA COMO CONCLUÍDA'}
+      </button>
+    </div>
+  `;
+}
+
+function renderExercise(ex, index, weekId) {
+  const isDone = (state.exercisesDone[weekId] || []).includes(index);
+  const tabHtml = ex.tab ? `
+    <div class="ex-section-label">TABLATURA</div>
+    <div class="tab-container">${ex.tab}</div>
+  ` : '';
+  const metroHtml = ex.bpm > 0 ? `
+    <div class="metronome-block">
+      <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);letter-spacing:0.1em;margin-bottom:0.75rem;">METRÔNOMO SUGERIDO</div>
+      <div class="metro-controls">
+        <div class="metro-bpm" id="bpm-${weekId}-${index}">${ex.bpm}</div>
+        <input type="range" class="metro-slider" min="40" max="200" value="${ex.bpm}" oninput="updateBpm('${weekId}-${index}', this.value)">
+        <div class="metro-dot" id="dot-${weekId}-${index}"></div>
+        <button class="metro-btn" id="metro-btn-${weekId}-${index}" onclick="toggleMetro('${weekId}-${index}')">▶ START</button>
+      </div>
+    </div>
+  ` : '';
+
+  return `
+    <div class="exercise-card" id="ex-card-${weekId}-${index}">
+      <div class="exercise-header" onclick="toggleExercise('${weekId}-${index}')">
+        <div class="exercise-num ${isDone ? 'done' : ''}" id="ex-num-${weekId}-${index}">${isDone ? '✓' : index+1}</div>
+        <div class="exercise-title">${ex.title}</div>
+        <div class="exercise-duration">${ex.duration}</div>
+        <div class="exercise-chevron">▾</div>
+      </div>
+      <div class="exercise-body">
+        <div class="ex-section-label">INSTRUÇÃO</div>
+        <p class="ex-text">${ex.instructions}</p>
+        ${tabHtml}
+        <div class="ex-section-label">PRÁTICA</div>
+        <p class="ex-text">${ex.practice}</p>
+        ${metroHtml}
+        <div class="timer-section">
+          <div class="timer-display" id="timer-${weekId}-${index}">0:00</div>
+          <button class="timer-btn" id="timer-btn-${weekId}-${index}" onclick="toggleTimer('${weekId}-${index}')">▶ TIMER</button>
+          <button class="timer-btn" onclick="resetTimer('${weekId}-${index}')">↺ RESET</button>
+          <button class="done-btn ${isDone ? 'marked' : ''}" id="done-btn-${weekId}-${index}" onclick="markExerciseDone(${weekId}, ${index})">
+            ${isDone ? '✓ FEITO' : '◈ MARCAR FEITO'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleExercise(id) {
+  const card = document.getElementById('ex-card-' + id);
+  card.classList.toggle('open');
+}
+
+// TIMER
+let timers = {};
+
+function toggleTimer(id) {
+  if (timers[id]?.running) {
+    clearInterval(timers[id].interval);
+    timers[id].running = false;
+    document.getElementById('timer-btn-' + id).textContent = '▶ TIMER';
+    document.getElementById('timer-btn-' + id).classList.remove('active');
+  } else {
+    if (!timers[id]) timers[id] = { seconds: 0, running: false };
+    timers[id].running = true;
+    document.getElementById('timer-btn-' + id).textContent = '■ PARAR';
+    document.getElementById('timer-btn-' + id).classList.add('active');
+    timers[id].interval = setInterval(() => {
+      timers[id].seconds++;
+      const m = Math.floor(timers[id].seconds / 60);
+      const s = timers[id].seconds % 60;
+      const el = document.getElementById('timer-' + id);
+      if (el) el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    }, 1000);
+  }
+}
+
+function resetTimer(id) {
+  if (timers[id]) {
+    clearInterval(timers[id].interval);
+    timers[id] = { seconds: 0, running: false };
+  }
+  const el = document.getElementById('timer-' + id);
+  if (el) el.textContent = '0:00';
+  const btn = document.getElementById('timer-btn-' + id);
+  if (btn) { btn.textContent = '▶ TIMER'; btn.classList.remove('active'); }
+}
+
+// METRONOME
+let metros = {};
+
+function updateBpm(id, val) {
+  const el = document.getElementById('bpm-' + id);
+  if (el) el.textContent = val;
+  if (metros[id]?.running) {
+    clearInterval(metros[id].interval);
+    metros[id].interval = setInterval(() => beatMetro(id), 60000 / val);
+  }
+}
+
+function toggleMetro(id) {
+  const btn = document.getElementById('metro-btn-' + id);
+  if (metros[id]?.running) {
+    clearInterval(metros[id].interval);
+    metros[id].running = false;
+    btn.textContent = '▶ START';
+    btn.classList.remove('playing');
+  } else {
+    const bpm = parseInt(document.getElementById('bpm-' + id).textContent);
+    if (!metros[id]) metros[id] = {};
+    metros[id].running = true;
+    btn.textContent = '■ STOP';
+    btn.classList.add('playing');
+    metros[id].interval = setInterval(() => beatMetro(id), 60000 / bpm);
+  }
+}
+
+function beatMetro(id) {
+  const dot = document.getElementById('dot-' + id);
+  if (dot) {
+    dot.classList.add('beat');
+    setTimeout(() => dot.classList.remove('beat'), 80);
+  }
+  playClick();
+}
+
+function playClick() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    osc.start(); osc.stop(ctx.currentTime + 0.1);
+  } catch(e) {}
+}
+
+// MAIN METRONOME
+function renderMainMetro() {
+  const dots = document.getElementById('main-metro-dots');
+  if (dots) {
+    dots.innerHTML = [1,2,3,4].map((_,i) => `<div class="metro-dot" id="main-dot-${i}"></div>`).join('');
+  }
+}
+
+function updateMainBpm(val) {
+  state.mainMetroBpm = parseInt(val);
+  document.getElementById('main-bpm-display').textContent = val;
+  if (state.mainMetroInterval) {
+    clearInterval(state.mainMetroInterval);
+    state.mainMetroBeat = 0;
+    state.mainMetroInterval = setInterval(mainBeat, 60000/state.mainMetroBpm);
+  }
+}
+
+function mainBeat() {
+  for(let i=0;i<4;i++){
+    const d = document.getElementById('main-dot-'+i);
+    if(d) d.classList.remove('beat');
+  }
+  const d = document.getElementById('main-dot-'+state.mainMetroBeat);
+  if(d){ d.classList.add('beat'); setTimeout(()=>d.classList.remove('beat'),100); }
+  state.mainMetroBeat = (state.mainMetroBeat+1)%4;
+  playClick();
+}
+
+function toggleMainMetro() {
+  const btn = document.getElementById('main-metro-btn');
+  if (state.mainMetroInterval) {
+    clearInterval(state.mainMetroInterval);
+    state.mainMetroInterval = null;
+    state.mainMetroBeat = 0;
+    btn.textContent = '▶ INICIAR';
+    btn.classList.remove('playing');
+  } else {
+    renderMainMetro();
+    state.mainMetroInterval = setInterval(mainBeat, 60000/state.mainMetroBpm);
+    btn.textContent = '■ PARAR';
+    btn.classList.add('playing');
+  }
+}
+
+function adjustBpm(delta) {
+  const slider = document.getElementById('main-metro-slider');
+  if (!slider) return;
+  const newVal = Math.max(40, Math.min(200, state.mainMetroBpm + delta));
+  slider.value = newVal;
+  updateMainBpm(newVal);
+}
+
+function setMainBpm(bpm) {
+  const slider = document.getElementById('main-metro-slider');
+  if (slider) slider.value = bpm;
+  updateMainBpm(bpm);
+}
+
+// TUNER
+function renderTuner() {
+  const container = document.getElementById('tuner-strings');
+  if (!container) return;
+  container.innerHTML = TUNING.map((s,i) => `
+    <div class="tuner-string" id="tuner-${i}" onclick="playTunerNote(${i})">
+      <div class="tuner-note">${s.note}</div>
+      <div class="tuner-freq">${s.freq}</div>
+      <div class="tuner-str-label">${s.str} corda</div>
+    </div>
+  `).join('');
+}
+
+const TUNER_FREQS = [82.41, 110, 146.83, 196, 246.94, 329.63];
+
+function playTunerNote(idx) {
+  const freq = TUNER_FREQS[idx];
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+    osc.start(); osc.stop(ctx.currentTime + 2.5);
+
+    document.querySelectorAll('.tuner-string').forEach(el => el.classList.remove('tuning'));
+    document.getElementById('tuner-' + idx)?.classList.add('tuning');
+    setTimeout(() => document.getElementById('tuner-' + idx)?.classList.remove('tuning'), 2500);
+  } catch(e) {}
+}
+
+// REPERTOIRE
+function renderRepertoire() {
+  const container = document.getElementById('repertoire-list');
+  if (!container) return;
+  container.innerHTML = REPERTOIRE.map(level => `
+    <div style="margin-bottom:2rem;">
+      <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.12em;color:var(--gold-dim);margin-bottom:1rem;">${level.level.toUpperCase()}</div>
+      ${level.pieces.map(p => `
+        <div class="week-card" style="margin-bottom:0.75rem;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:1.05rem;color:var(--cream);margin-bottom:0.25rem;">${p.title}</div>
+              <div style="font-size:0.85rem;color:var(--cream-dim);">${p.composer} · ${p.period}</div>
+            </div>
+            <span class="topic-tag">${p.key}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// NOTES
+function saveWeekNote(weekId, value) {
+  state.notes[weekId] = value;
+  saveState();
+}
+
+function renderAllNotes() {
+  const container = document.getElementById('notes-list');
+  if (!container) return;
+  const weeksWithNotes = WEEKS_DATA.filter(w => state.notes[w.id]);
+
+  if (weeksWithNotes.length === 0) {
+    container.innerHTML = '<p class="ex-text" style="color:var(--text-dim);">Ainda não tens apontamentos. Abre uma semana e escreve os teus apontamentos na secção correspondente.</p>';
+    return;
+  }
+
+  container.innerHTML = weeksWithNotes.map(w => `
+    <div class="week-card" style="margin-bottom:1rem;">
+      <div class="week-num">SEMANA ${w.id}</div>
+      <div style="font-size:0.95rem;color:var(--cream);margin-bottom:0.75rem;">${w.title}</div>
+      <p class="ex-text">${(state.notes[w.id] || '').replace(/\n/g,'<br>')}</p>
+    </div>
+  `).join('');
+}
+
+// MARK DONE
+function markExerciseDone(weekId, exIdx) {
+  if (!state.exercisesDone[weekId]) state.exercisesDone[weekId] = [];
+  if (!state.exercisesDone[weekId].includes(exIdx)) {
+    state.exercisesDone[weekId].push(exIdx);
+    saveState();
+  }
+  const btn = document.getElementById(`done-btn-${weekId}-${exIdx}`);
+  const num = document.getElementById(`ex-num-${weekId}-${exIdx}`);
+  if (btn) { btn.textContent = '✓ FEITO'; btn.classList.add('marked'); }
+  if (num) { num.textContent = '✓'; num.classList.add('done'); }
+
+  const week = WEEKS_DATA.find(w => w.id === weekId);
+  const doneCount = state.exercisesDone[weekId].length;
+  const countEl = document.getElementById('done-ex-count');
+  if (countEl) countEl.textContent = doneCount;
+}
+
+function markWeekDone(weekId) {
+  if (!state.weeksDone.includes(weekId)) {
+    state.weeksDone.push(weekId);
+    saveState();
+  }
+  const btn = document.getElementById('complete-week-btn');
+  if (btn) { btn.textContent = '✓ SEMANA CONCLUÍDA'; btn.style.opacity = '0.5'; }
+  renderWeeks();
+}
+
+function closLesson() {
+  document.getElementById('page-lesson').style.display = 'none';
+  document.getElementById('page-plano').style.display = 'block';
+}
+
+// INIT
+renderWeeks();
+renderMainMetro();
+</script>
+</body>
+</html>
